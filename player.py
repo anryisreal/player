@@ -1,4 +1,5 @@
 import sys
+import numpy
 import pygame
 import threading
 from maps import *
@@ -6,6 +7,8 @@ from maps import *
 pygame.init()
 WIDTH, HEIGHT = 980, 980
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
+game_map = numpy.empty((screen.get_width(), screen.get_height()), dtype="object")
+game_map[...] = "N"
 clock = pygame.time.Clock()
 objects = []
 enemys = []
@@ -19,8 +22,8 @@ class Player:
         self.width = 70
         self.height = 70
         self.image = pygame.image.load("models/player.png")
-        self.x = WIDTH / 2
-        self.y = HEIGHT / 2
+        self.x = int(WIDTH / 2)
+        self.y = int(HEIGHT / 2)
         self.speed = 6
         self.space_x = 0
         self.space_y = 0
@@ -28,83 +31,60 @@ class Player:
         self.stop_y = 0
 
     def movement(self, signal):
-        self.space_x, self.space_y, self.stop_x, self.stop_y = 0, 0, 0, 0
         if signal == 0:
-            for map_object in map:
-                if map_object.y + map_object.wall.get_height() <= self.y:
-                    if map_object.y + map_object.wall.get_height() > self.stop_y:
-                        self.stop_y = map_object.y + map_object.wall.get_height()
-                    if map_object.x <= self.x <= map_object.x + map_object.wall.get_width():
-                        self.space_x += map_object.wall.get_width()
-            if self.space_x >= self.width:
-                if self.y > self.stop_y:
-                    self.y -= self.speed
-            else:
-                if self.y - self.speed < 0:
-                    pass
+            for i in range(self.speed):
+                if self.y == 0:
+                    return
                 else:
-                    self.y -= self.speed
-
-
-
-                '''for map_object in map:
-                    if self.y - self.speed >= map_object.y + map_object.wall.get_height():
-                        if self.y - self.speed < 0:
-                            pass
-                        else:
-                            self.y -= self.speed
-                    if self.y - self.speed < map_object.y + map_object.wall.get_height() and self.y > map_object.y + map_object.wall.get_height():
-                        self.y = map_object.y + map_object.wall.get_height()'''
-
-
+                    for i in range(self.x, self.x + self.width):
+                        if game_map[self.y - 1][i] == "W":
+                            return
+                    for i in range(self.x, self.x + self.width):
+                        game_map[self.y - 1][i] = "P"
+                        game_map[self.y + self.height][i] = "N"
+                    self.y -= 1
 
         if signal == 1:
-            for map_object in map:
-                if map_object.y >= self.y + self.height:
-                    if map_object.y > self.stop_y:
-                        self.stop_y = map_object.y - self.height
-                    if map_object.x <= self.x <= map_object.x + map_object.wall.get_width():
-                        self.space_x += map_object.wall.get_width()
-            if self.space_x >= self.width:
-                if self.y < self.stop_y:
-                    if self.y + self.speed > self.stop_y:
-                        self.y = self.stop_y
-                    if self.y + self.speed <= self.stop_y:
-                        self.y += self.speed
-                        print(self.y, self.space_x, self.width, self.stop_y)
-            else:
-                if self.y + self.speed > HEIGHT - self.height:
-                    pass
+            for i in range(self.speed):
+                if self.y + self.height == HEIGHT:
+                    return
                 else:
-                    self.y += self.speed
-
-                '''if self.y + self.speed <= map_object.y - self.height:
-                    if self.y + self.speed > HEIGHT - self.height:
-                        pass
-                    else:
-                        self.y += self.speed
-                if self.y + self.speed > map_object.y - self.height and self.y < map_object.y - self.height:
-                    self.y = map_object.y - self.heigh'''
-
+                    for i in range(self.x, self.x + self.width):
+                        if game_map[self.y + self.height + 1][i] == "W":
+                            print(self.y + self.height, HEIGHT, game_map[self.y + self.height + 1][i])
+                            return
+                    for i in range(self.x, self.x + self.width):
+                        game_map[self.y + self.height + 1][i] = "P"
+                        game_map[self.y][i] = "N"
+                    self.y += 1
 
         if signal == 2:
-            for map_object in map:
-                if self.x - self.speed >= map_object.x + map_object.wall.get_width():
-                    if self.x - self.speed < 0:
-                        pass
-                    else:
-                        self.x -= self.speed
-                if self.x - self.speed < map_object.x + map_object.wall.get_width() and self.x > map_object.x + map_object.wall.get_width():
-                    self.x = map_object.x + map_object.wall.get_width()
+            for i in range(self.speed):
+                if self.x == 0:
+                    return
+                else:
+                    for i in range(self.y, self.y + self.height):
+                        if game_map[self.x - 1][i] == "W":
+                            return
+                    for i in range(self.y, self.y + self.height):
+                        game_map[self.x - 1][i] = "P"
+                        game_map[self.x + self.width][i] = "N"
+                    self.x -= 1
+
         if signal == 3:
-            for map_object in map:
-                if self.x + self.speed <= map_object.x - self.width:
-                    if self.x + self.speed > WIDTH - self.width:
-                        pass
-                    else:
-                        self.x += self.speed
-                if self.x + self.speed > map_object.x - self.width and self.x < map_object.x - self.width:
-                    self.x = map_object.x - self.width
+            for i in range(self.speed):
+                if self.x + self.width == WIDTH:
+                    return
+                else:
+                    for i in range(self.y, self.y + self.height):
+                        if game_map[self.x + self.width + 1][i] == "W":
+                            return
+                    for i in range(self.y, self.y + self.height):
+                        game_map[self.x + self.width + 1][i] = "P"
+                        game_map[self.x][i] = "N"
+                    self.x += 1
+
+
 
     def check_wall(self):
         pass
@@ -269,6 +249,7 @@ def display():
     screen.blit(player.image, (player.x, player.y))
     objects.append(player)
     init_map(map_level0)
+    fill_map(game_map, map, screen, player)
     while True:
         screen.blit(player.image, (player.x, player.y))
         clock.tick(30)
@@ -301,6 +282,7 @@ def display():
 
 
 player = Player()
-enemy = Enemy(50, 60, 600, 400)
-enemys.append(enemy)
+'''enemy = Enemy(50, 60, 600, 400)   #Создание врага
+enemys.append(enemy)'''
+
 display()
