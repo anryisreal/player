@@ -13,13 +13,12 @@ clock = pygame.time.Clock()
 objects = []
 enemys = []
 map = []
-firstshot = False
 
 
 class Player:
 
     def __init__(self):
-        self.width = 70
+        self.width = 51
         self.height = 70
         self.image = pygame.image.load("models/player.png")
         self.x = int(WIDTH / 2)
@@ -29,6 +28,7 @@ class Player:
         self.space_y = 0
         self.stop_x = 0
         self.stop_y = 0
+        self.firstshot = False
 
     def movement(self, signal):
         if signal == 0:
@@ -56,7 +56,6 @@ class Player:
                         game_map[self.y + self.height + 1][i] = "P"
                         game_map[self.y][i] = "N"
                     self.y += 1
-                    print(self.y + self.height, self.y)
 
 
         if signal == 2:
@@ -65,11 +64,11 @@ class Player:
                     return
                 else:
                     for i in range(self.y, self.y + self.height):
-                        if game_map[self.x - 1][i] == "W":
+                        if game_map[i][self.x - 1] == "W":
                             return
                     for i in range(self.y, self.y + self.height):
-                        game_map[self.x - 1][i] = "P"
-                        game_map[self.x + self.width][i] = "N"
+                        game_map[i][self.x - 1] = "P"
+                        game_map[i][self.x + self.width] = "N"
                     self.x -= 1
 
         if signal == 3:
@@ -78,11 +77,11 @@ class Player:
                     return
                 else:
                     for i in range(self.y, self.y + self.height):
-                        if game_map[self.x + self.width + 1][i] == "W":
+                        if game_map[i][self.x + self.width + 1] == "W":
                             return
                     for i in range(self.y, self.y + self.height):
-                        game_map[self.x + self.width + 1][i] = "P"
-                        game_map[self.x][i] = "N"
+                        game_map[i][self.x + self.width + 1] = "P"
+                        game_map[i][self.x] = "N"
                     self.x += 1
 
 class Enemy:
@@ -135,7 +134,7 @@ class Enemy:
                 self.revers = False
 
 
-class Shot:
+'''class Shot:
     def __init__(self, x, y):
         self.image = pygame.image.load("models/shot.png")
         self.x = x + 30
@@ -146,14 +145,14 @@ class Shot:
             while self.y != 0:
                 for enemy in enemys:
                     if enemy.x <= self.x <= (enemy.x + enemy.width):
-                        if enemy.y <= self.y <= (enemy.y + enemy.height):
+                        if enemy.y <= self.y <= (enemy.y + enemy.height):               #Модельки пуль
                             del enemys[0]
                             del objects[1]
                             return
                 clock.tick(30)
                 self.y -= 10
         if self.y <= 0:
-            del objects[1]
+            del objects[1]'''
 
 
 class Wall:
@@ -161,15 +160,15 @@ class Wall:
         self.x = x
         self.y = y
         self.color = [185, 173, 173]
+        self.image = pygame.transform.scale(pygame.image.load("models/brick.png"), (wall.get_width(), wall.get_height()))
         self.wall = wall
 
     def fill_blit(self):
-        self.wall.fill([185, 173, 173])
-        screen.blit(self.wall, (self.x, self.y))
+        screen.blit(self.image, (self.x, self.y))
 
 
 
-'''def init_map(str_map):
+def init_map(str_map):
     height = str_map.count("\n")
     str_max = 0
     start_index = 0
@@ -192,50 +191,40 @@ class Wall:
             barrier = pygame.Surface((size_x, size_y))
             wall = Wall(size_x * start_index, size_y * start_indey, barrier)
             map.append(wall)
-        start_index += 1'''
+        start_index += 1
 
 
 def display_obj():
     screen.fill((0, 0, 0))
-    for object in objects:
-        screen.blit(object.image, (object.x, object.y))
     for enemy in enemys:
         enemy.movement()
         screen.blit(enemy.image, (enemy.x, enemy.y))
     for map_object in map:
         map_object.fill_blit()
+    for object in objects:
+        screen.blit(object.image, (object.x, object.y))
+    pygame.display.update()
 
 
 def display():
-    global firstshot
-    screen.fill((0, 0, 0))
-    screen.blit(player.image, (player.x, player.y))
-    objects.append(player)
-    barrier = pygame.Surface((100, 100))
-    wall = Wall(0, 0, barrier)
-    map.append(wall)
-    barrier = pygame.Surface((120, 100))
-    wall = Wall(400, 230, barrier)
-    map.append(wall)
-    #init_map(map_level0)
+    init_map(map_level0)
     fill_map(game_map, map, screen, player)
     while True:
-        screen.blit(player.image, (player.x, player.y))
         clock.tick(30)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN and firstshot == False:
+            '''if event.type == pygame.KEYDOWN and player.firstshot == False:
                 if event.key == pygame.K_SPACE:
                     shot = Shot(player.x, player.y)
                     objects.append(shot)
-                    threading.Thread(target=shot.shot).start()
-                    firstshot = True
+                    threading.Thread(target=shot.shot).start()                      #Отслеживание стрельбы
+                    player.firstshot = True
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_SPACE:
-                    firstshot = False
-                    continue
+                    player.firstshot = False
+                    continue'''
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
@@ -247,11 +236,11 @@ def display():
         if keys[pygame.K_d]:
             threading.Thread(target=player.movement, args=(3,)).start()
         threading.Thread(target=display_obj).start()
-        pygame.display.update()
 
 
 player = Player()
-'''enemy = Enemy(50, 60, 600, 400)   #Создание врага
+objects.append(player)
+'''enemy = Enemy(50, 60, 600, 400)  #Создание врага
 enemys.append(enemy)'''
 
 display()
