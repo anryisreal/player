@@ -5,9 +5,9 @@ import threading
 from maps import *
 
 pygame.init()
-WIDTH, HEIGHT = 980, 980
+WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
-game_map = numpy.empty((screen.get_width(), screen.get_height()), dtype="object")
+game_map = numpy.empty((screen.get_width() + 1, screen.get_height() + 1), dtype="object")
 game_map[...] = "N"
 clock = pygame.time.Clock()
 objects = []
@@ -51,12 +51,13 @@ class Player:
                 else:
                     for i in range(self.x, self.x + self.width):
                         if game_map[self.y + self.height + 1][i] == "W":
-                            print(self.y + self.height, HEIGHT, game_map[self.y + self.height + 1][i])
                             return
                     for i in range(self.x, self.x + self.width):
                         game_map[self.y + self.height + 1][i] = "P"
                         game_map[self.y][i] = "N"
                     self.y += 1
+                    print(self.y + self.height, self.y)
+
 
         if signal == 2:
             for i in range(self.speed):
@@ -83,44 +84,6 @@ class Player:
                         game_map[self.x + self.width + 1][i] = "P"
                         game_map[self.x][i] = "N"
                     self.x += 1
-
-
-
-    def check_wall(self):
-        pass
-
-'''    def check_w(x, y, space_x, space_y):
-    for map_object in map:
-        if map_object.y + map_object.wall.get_height() >= self.y:
-            if map_object.x <= self.x <= map_object.x + map_object.wall.get_width():
-                self.space_x += (map_object.wall.get_width() - map_object.x)
-    if self.space_x >= self.width:
-        return 0
-    return -1
-    def check_s(x, y, space_x, space_y):
-    for map_object in map:
-        if map_object.y <= self.y + self.height:
-            if map_object.x <= self.x <= map_object.x + map_object.wall.get_width():
-                self.space_x += (map_object.wall.get_width() - map_object.x)
-    if self.space_x >= self.width:
-        return 0
-    return -1
-    def check_a(x, y, space_x, space_y):
-    for map_object in map:
-        if map_object.x + map_object.wall.width() <= self.x:
-            if map_object.y <= self.y <= map_object.y + map_object.wall.get_height():
-                self.space_y += (map_object.wall.height() - map_object.y)
-    if self.space_y >= self.height:
-        return 0
-    return -1
-    def check_d(x, y, space_x, space_y, height, width):
-    for map_object in map:
-        if map_object.x >= x + width:
-            if map_object.y <= y <= map_object.y + map_object.wall.get_height():
-                .space_y += (map_object.wall.height() - map_object.y)
-    if space_y >= height:
-        return 0
-    return -1'''
 
 class Enemy:
 
@@ -206,7 +169,7 @@ class Wall:
 
 
 
-def init_map(str_map):
+'''def init_map(str_map):
     height = str_map.count("\n")
     str_max = 0
     start_index = 0
@@ -229,7 +192,7 @@ def init_map(str_map):
             barrier = pygame.Surface((size_x, size_y))
             wall = Wall(size_x * start_index, size_y * start_indey, barrier)
             map.append(wall)
-        start_index += 1
+        start_index += 1'''
 
 
 def display_obj():
@@ -248,7 +211,13 @@ def display():
     screen.fill((0, 0, 0))
     screen.blit(player.image, (player.x, player.y))
     objects.append(player)
-    init_map(map_level0)
+    barrier = pygame.Surface((100, 100))
+    wall = Wall(0, 0, barrier)
+    map.append(wall)
+    barrier = pygame.Surface((120, 100))
+    wall = Wall(400, 230, barrier)
+    map.append(wall)
+    #init_map(map_level0)
     fill_map(game_map, map, screen, player)
     while True:
         screen.blit(player.image, (player.x, player.y))
