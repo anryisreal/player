@@ -1,9 +1,6 @@
 import pygame
 import json
 
-settings = open("settings.json", "r")
-data = json.load(settings)
-settings.close()
 class Wall:
     def __init__(self, x, y, wall):
         self.x = int(x)
@@ -13,10 +10,16 @@ class Wall:
         self.wall = wall
 
     def fill_blit(self, screen):
+        settings = open("settings.json", "r")
+        data = json.load(settings)
+        settings.close()
         screen.blit(self.image, (self.x + data["ABS_X"], self.y + data["ABS_Y"]))
 
 
 def init_map(str_map, MAP):
+    settings = open("settings.json", "r")
+    data = json.load(settings)
+    settings.close()
     height = str_map.count("\n")
     str_max = 0
     start_index = 0

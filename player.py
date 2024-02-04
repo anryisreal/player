@@ -1,12 +1,8 @@
 import pygame
-import json
 
-settings = open("settings.json", "r")
-data = json.load(settings)
-settings.close()
 class Player:
 
-    def __init__(self):
+    def __init__(self, data):
         self.width = 51
         self.height = 70
         self.image = pygame.image.load("models/Player/Player_W.png")
@@ -19,7 +15,7 @@ class Player:
         self.stop_y = 0
         self.MouseUp = False
 
-    def movement(self, keys, game_map):
+    def movement(self, keys, game_map, data):
         if keys[pygame.K_w]:
             self.image = pygame.image.load("models/Player/Player_W.png")
             for i in range(self.speed):

@@ -21,17 +21,6 @@ ABS_X = data["ABS_X"]
 ABS_Y = data["ABS_Y"]
 FPS = data["FPS"]
 
-if data["FULL_HEIGHT"] != q.height():
-    with open("settings.json", "w") as setting:
-            data["FULL_HEIGHT"] = q.height()
-            data["HEIGHT"] = q.height() - 80
-            setting.write(json.dumps(data))
-if data["FULL_WIDTH"] != q.width():
-    with open("settings.json", "w") as setting:
-            data["FULL_WIDTH"] = q.width()
-            data["WIDTH"] = q.width() - 80
-            setting.write(json.dumps(data))
-
 
 
 map_level0 = 'WWWW  WWWW\n' \
@@ -91,14 +80,14 @@ class Game:
         pygame.display.update()
 
     def display_reboot(self):
-        print(self.WIDTH, self.HEIGHT)
+        self.INTERFACE = []
         self.MAP = []
         self.game_map = numpy.empty((self.WIDTH + 1, self.HEIGHT + 1), dtype="object")
         self.game_map[...] = "N"
-        print(self.game_map.shape)
         init_map(map_level0, self.MAP)
         fill_map(self.game_map, self.MAP, self.player)
         self.display_obj()
+        self.fill_interface()
     def display(self):
         self.display_reboot()
         while True:
@@ -110,6 +99,14 @@ class Game:
                     self.FULL_HEIGHT = event.size[1]
                     self.WIDTH = self.FULL_WIDTH - 80
                     self.HEIGHT = self.FULL_HEIGHT - 80
+                    data["FULL_WIDTH"] = event.size[0]
+                    data["FULL_HEIGHT"] = event.size[1]
+                    data["WIDTH"] = self.FULL_WIDTH - 80
+                    data["HEIGHT"] = self.FULL_HEIGHT - 80
+                    player.x = int(data["WIDTH"] / 2)
+                    player.y = int(data["HEIGHT"] / 2)
+                    with open("settings.json", "w") as setting:
+                        setting.write(json.dumps(data))
                     self.display_reboot()
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -131,8 +128,24 @@ class Game:
             # threading.Thread(target=player.attack(mouses)).start()
 
             threading.Thread(target=self.display_obj()).start()
-            threading.Thread(target=player.movement(keys, self.game_map)).start()
+            threading.Thread(target=player.movement(keys, self.game_map, data)).start()
             #threading.Thread(target=init_menu(mouses)).start()
+
+    def fill_interface(self):
+        Border_Left = Menu("models/menu/menu.png", 0, 0, self.ABS_X, self.FULL_HEIGHT, True)
+        Border_Top = Menu("models/menu/menu.png", 0, 0, self.FULL_WIDTH, self.ABS_Y, True)
+        Border_Right = Menu("models/menu/menu.png", self.FULL_WIDTH - self.ABS_X, 0, self.ABS_X, self.FULL_HEIGHT - self.ABS_Y, True)
+        Inventory = Menu("models/menu/inventory.png", self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.ABS_Y, 200,
+                         self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y, True)
+        Fill_Menu = Menu("models/menu/menu.png", 0, self.FULL_HEIGHT - self.ABS_Y, self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y,
+                         True)
+        self.INTERFACE.append(Fill_Menu)
+        self.INTERFACE.append(Inventory)
+        interface_menu = Menu("models/menu/menu_rgb.png", 400, 400, 300, 300, False)
+        self.INTERFACE.append(interface_menu)
+        self.INTERFACE.append(Border_Left)
+        self.INTERFACE.append(Border_Top)
+        self.INTERFACE.append(Border_Right)
 
 
 # Создание дисплея
@@ -150,21 +163,6 @@ class Menu:
         screen.blit(self.image, (self.x, self.y))
 
 
-def fill_interface(INTERFACE):
-    Border_Left = Menu("models/menu/menu.png", 0, 0, ABS_X, FULL_HEIGHT, True)
-    Border_Top = Menu("models/menu/menu.png", 0, 0, FULL_WIDTH, ABS_Y, True)
-    Border_Right = Menu("models/menu/menu.png", FULL_WIDTH - ABS_X, 0, ABS_X, FULL_HEIGHT - ABS_Y, True)
-    Inventory = Menu("models/menu/inventory.png", FULL_WIDTH - 200, FULL_HEIGHT - ABS_Y, 200,
-                     FULL_HEIGHT - HEIGHT - ABS_Y, True)
-    Fill_Menu = Menu("models/menu/menu.png", 0, FULL_HEIGHT - ABS_Y, FULL_WIDTH - 200, FULL_HEIGHT - HEIGHT - ABS_Y,
-                     True)
-    INTERFACE.append(Fill_Menu)
-    INTERFACE.append(Inventory)
-    interface_menu = Menu("models/menu/menu_rgb.png", 400, 400, 300, 300, False)
-    INTERFACE.append(interface_menu)
-    INTERFACE.append(Border_Left)
-    INTERFACE.append(Border_Top)
-    INTERFACE.append(Border_Right)
 
 '''def init_menu(mouses):
     global MouseUp
@@ -181,9 +179,8 @@ def fill_interface(INTERFACE):
 
 
 
-player = Player()
+player = Player(data)
 game = Game(FULL_HEIGHT, FULL_WIDTH, HEIGHT, WIDTH, ABS_X, ABS_Y, FPS, interface_map, player)
-fill_interface(game.INTERFACE)
 
 '''enemy = Enemy(50, 60, 600, 400)  #Создание врага
 enemys.append(enemy)'''
