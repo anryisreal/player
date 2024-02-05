@@ -71,11 +71,3 @@ class Player:
                         game_map[self.x + self.width + 1][i] = "P"
                         game_map[self.x][i] = "N"
                     self.x += 1
-
-    '''def attack(self, mouses):
-        if mouses[0]:
-            if not self.MouseUp:
-                print("123")
-                self.MouseUp = True
-        if not mouses[0]:
-            self.MouseUp = False'''

@@ -16,7 +16,7 @@ class Wall:
         screen.blit(self.image, (self.x + data["ABS_X"], self.y + data["ABS_Y"]))
 
 
-def init_map(str_map, MAP):
+def init_map(str_map: str, MAP: list) -> None:
     settings = open("settings.json", "r")
     data = json.load(settings)
     settings.close()
@@ -44,7 +44,7 @@ def init_map(str_map, MAP):
             MAP.append(wall)
         start_index += 1
 
-def fill_map(game_map, map_object, player):
+def fill_map(game_map, map_object, player) -> None:
     for object in map_object:
         for i in range(int(object.y), int(object.y + object.wall.get_height())):
             for j in range(int(object.x), int(object.x + object.wall.get_width())):
