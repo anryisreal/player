@@ -14,6 +14,7 @@ class Player:
         self.stop_x = 0
         self.stop_y = 0
         self.MouseUp = False
+        self.obj = None
 
     def movement(self, keys, game_map, data):
         if keys[pygame.K_w]:
@@ -26,8 +27,11 @@ class Player:
                         if game_map[i][self.y - 1] == "W":
                             return
                     for i in range(self.x, self.x + self.width):
-                        game_map[i][self.y - 1] = "P"
-                        game_map[i][self.y + self.height] = "N"
+                        if game_map[i][self.y - 1] == "N":
+                            game_map[i][self.y - 1] = "P"
+                            game_map[i][self.y + self.height] = "N"
+                        else:
+                            self.obj = game_map[i][self.y - 1]
                     self.y -= 1
 
         if keys[pygame.K_s]:

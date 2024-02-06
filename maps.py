@@ -2,6 +2,18 @@ import pygame
 import json
 
 
+class Menu:
+    def __init__(self, image: str, x: int, y: int, x_line: int, y_line: int, is_on: bool):
+        self.x = x
+        self.y = y
+        self.x_line = x_line
+        self.y_line = y_line
+        self.image = pygame.transform.scale(pygame.image.load(image),(x_line, y_line))
+        self.is_on = is_on
+
+    def fill_blit(self, screen):
+        screen.blit(self.image, (self.x, self.y))
+
 class Object:
     def __init__(self, x, y, wall, image):
         self.x = int(x)
@@ -17,13 +29,15 @@ class Object:
         screen.blit(self.image, (self.x + data["ABS_X"], self.y + data["ABS_Y"]))
 
 class Teleport(Object):
-    def __init__(self, x, y, wall, image, next_map):
+    def __init__(self, x, y, wall, image, next_map, id):
         super().__init__(x, y, wall, image)
 
         self.next_map = next_map
+        self.id = id
+    def type(self):
+        return "Teleport"
 
-
-def init_map(str_map: str, MAP: list) -> None:
+def init_map(str_map: str, MAP: list, UNIQUE_OBJECTS: dict) -> None:
     settings = open("settings.json", "r")
     data = json.load(settings)
     settings.close()
@@ -51,9 +65,10 @@ def init_map(str_map: str, MAP: list) -> None:
             MAP.append(wall)
         if str_map[i] == "T":
             barrier = pygame.Surface((size_x, size_y))
-            teleport = Teleport(size_x * start_index, size_y * start_indey, barrier, pygame.transform.scale(pygame.image.load("models/objects/teleport.png"), (barrier.get_width(), barrier.get_height())), "maps/map_level1.txt")
+            teleport = Teleport(size_x * start_index, size_y * start_indey, barrier, pygame.transform.scale(pygame.image.load("models/objects/teleport.png"), (barrier.get_width(), barrier.get_height())), "maps/map_level1.txt", 1)
             teleport.transmission = True
             MAP.append(teleport)
+            UNIQUE_OBJECTS[teleport.id] = teleport
         start_index += 1
 
 def fill_map(game_map, map_object, player) -> None:
@@ -65,7 +80,7 @@ def fill_map(game_map, map_object, player) -> None:
         else:
             for i in range(int(object.y), int(object.y + object.wall.get_height())):
                 for j in range(int(object.x), int(object.x + object.wall.get_width())):
-                    game_map[j][i] = "T"
+                    game_map[j][i] = object.id
     for i in range(int(player.y), int(player.y + player.height)):
         for j in range(int(player.x), int(player.x + player.width)):
             game_map[j][i] = "P"

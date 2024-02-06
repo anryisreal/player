@@ -36,6 +36,9 @@ class Game:
         # Меню
         self.INTERFACE = []
 
+        # Уникальные обьекты
+        self.UNIQUE_OBJECTS = dict()
+
     # Загрузка обьектов игрового дисплея
     def display_obj(self) -> None:
         self.screen.fill((0, 0, 0))
@@ -60,10 +63,10 @@ class Game:
         self.game_map[...] = "N"
         self.interface_map = numpy.empty((data["FULL_WIDTH"] + 1, data["FULL_HEIGHT"] + 1), dtype="object")
         self.interface_map[...] = "N"
-        init_map(map_level0, self.MAP)
+        init_map(map_level0, self.MAP, self.UNIQUE_OBJECTS)
         fill_map(self.game_map, self.MAP, self.player)
-        self.display_obj()
         self.fill_interface()
+        self.display_obj()
 
     # Загрузка игрового дисплея
     def display(self) -> None:
@@ -98,6 +101,8 @@ class Game:
 
             threading.Thread(target=self.display_obj()).start()
             threading.Thread(target=player.movement(keys, self.game_map, data)).start()
+            if player.obj != None:
+                print(self.UNIQUE_OBJECTS)
             #threading.Thread(target=init_menu(mouses)).start()
 
     # Редактирование игрового интерфейса
@@ -105,30 +110,18 @@ class Game:
         Border_Left = Menu("models/menu/menu.png", 0, 0, self.ABS_X, self.FULL_HEIGHT, True)
         Border_Top = Menu("models/menu/menu.png", 0, 0, self.FULL_WIDTH, self.ABS_Y, True)
         Border_Right = Menu("models/menu/menu.png", self.FULL_WIDTH - self.ABS_X, 0, self.ABS_X, self.FULL_HEIGHT - self.ABS_Y, True)
-        Inventory = Menu("models/menu/inventory.png", self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.ABS_Y, 200,
-                         self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y, True)
-        Fill_Menu = Menu("models/menu/menu.png", 0, self.FULL_HEIGHT - self.ABS_Y, self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y,
-                         True)
+        Inventory = Menu("models/menu/inventory.png", self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.ABS_Y, 200, self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y, True)
+        Fill_Menu = Menu("models/menu/menu.png", 0, self.FULL_HEIGHT - self.ABS_Y, self.FULL_WIDTH - 200, self.FULL_HEIGHT - self.HEIGHT - self.ABS_Y, True)
+        interface_menu = Menu("models/menu/menu_rgb.png", 400, 400, 300, 300, False)
+        tp_menu = Menu("models/menu/tp_menu.png", int(self.FULL_WIDTH * 0.42), int(self.HEIGHT * 0.8), int(self.WIDTH * 0.19), int(self.HEIGHT * 0.08), True)
         self.INTERFACE.append(Fill_Menu)
         self.INTERFACE.append(Inventory)
-        interface_menu = Menu("models/menu/menu_rgb.png", 400, 400, 300, 300, False)
         self.INTERFACE.append(interface_menu)
         self.INTERFACE.append(Border_Left)
         self.INTERFACE.append(Border_Top)
         self.INTERFACE.append(Border_Right)
+        self.INTERFACE.append(tp_menu)
 
-
-class Menu:
-    def __init__(self, image: str, x: int, y: int, x_line: int, y_line: int, is_on: bool):
-        self.x = x
-        self.y = y
-        self.x_line = x_line
-        self.y_line = y_line
-        self.image = pygame.transform.scale(pygame.image.load(image),(x_line, y_line))
-        self.is_on = is_on
-
-    def fill_blit(self, screen):
-        screen.blit(self.image, (self.x, self.y))
 
 
 
